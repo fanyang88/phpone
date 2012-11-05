@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html anifest="conversion.appcache">
+	<head>
+		<title>Donate</title>
+		<style>
+			h1,h2 { font-size:300%; }
+			select,input { font-size: 250%;margin:0 20px 30px;padding:10px; }
+		</style>
+	</head>
+	<body>
+		<h1>Please Donate</h1>
+		<form action="payment404.php" method="get" id="form">
+			<h2>1. Select Currency</h2>
+			<select name="currency" id="currency">
+				<option value="USD" selected="selected">USD</option>
+				<option value="JPY">JPY</option>
+				<option value="BGN">BGN</option>
+				<option value="CZK">CZK</option>
+				<option value="ARS">ARS</option>
+				<option value="AUD">AUD</option>
+				<option value="CHF">CHF</option>
+			</select>
+			<h2>2. Select Amount and Donate</h2>
+			<input type="submit" base-value="10" value="10" name="value" />
+			<input type="submit" base-value="25" value="25" name="value" />
+			<input type="submit" base-value="50" value="50" name="value" />
+			<input type="submit" base-value="100" value="100" name="value" />
+		</form>
+		<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+		<script>
+			$(document).ready(function(){
+				var inputs = $('#form input[name=value]'),
+					amount = [];
+					inputs.each(function(index,el){
+						amount.push($(el).attr('base-value'));
+					});
+				$('#currency').on('change',function(ev){
+					var currency = $(this).val();
+					if(currency === 'USD'){
+						inputs.each(function(index,el){
+							$(el).val(amount[index]);
+						});
+					}else{
+						inputs.prop('disabled',true);
+						$.ajax({
+							url:'conversion.php',
+							dataType:'json',
+							type:'get',
+							cache:false,
+							data:{
+								currency:currency,
+								amount:amount.join(',')
+							},
+							success:function(data){
+								var amounts = data.content.split(',');
+								inputs.each(function(index,el){
+									$(el).val(amounts[index]);
+								});
+							},
+							complete:function(){
+								inputs.prop('disabled',false);
+							}
+						});
+					}
+				});
+			});
+		</script>
+	</body>
+</html>
